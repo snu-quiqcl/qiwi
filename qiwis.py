@@ -145,25 +145,23 @@ class MdiArea(QMdiArea):
     """QMdiArea for the central widget.
     
     Attributes:
-        background: The QPixmap instance of the background image.
+        background_path, background_color: See the predefined constants in _read_config_file().
     """
 
     def __init__(self, background_path: Optional[str], background_color: Optional[str]):
         """Extended.
         
         Args:
-            background_path: The path of the background image.
+            See the attributes section.
         """
         super().__init__()
         self.background_path = background_path
         self.background_color = background_color
-        self.image = QPixmap(background_path)
-        self.color = QColor(background_color)
 
     def paintEvent(self, _event: QPaintEvent):
-        """Extended.
+        """Overridden.
         
-        Draws the background image.
+        Paints its background.
         """
         painter = QPainter(self.viewport())
         if self.background_color is not None:
@@ -815,6 +813,7 @@ def _read_config_file(config_path: str) -> Tuple[Dict[str, AppInfo], Dict[str, J
     The predefined constants are as follows:
         icon_path: The path of the icon image.
         background_path: The path of the background image.
+        background_color: The background color in hexadecimal string.
 
     Args:
         config_path: The path of the configuration file.
