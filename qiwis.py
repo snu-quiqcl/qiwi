@@ -230,22 +230,22 @@ class Qiwis(QObject):
         self._apps: Dict[str, BaseApp] = {}
         self._subscribers: DefaultDict[str, Set[str]] = defaultdict(set)
         appInfos = appInfos if appInfos else {}
-        self.setIcon(icon_path)
+        if icon_path is not None:
+            self.setIcon(icon_path)
         self.load(appInfos)
         if isMaximized:
             self.mainWindow.showMaximized()
         else:
             self.mainWindow.show()
 
-    def setIcon(self, icon_path: Optional[str]):
+    def setIcon(self, icon_path: str):
         """Sets the icon image.
 
         Args:
-            icon_path: The path of the icon image.
+            See the predefined constants in _read_config_file().
         """
-        if icon_path is not None:
-            icon = QIcon(icon_path)
-            self.mainWindow.setWindowIcon(icon)
+        icon = QIcon(icon_path)
+        self.mainWindow.setWindowIcon(icon)
 
     def load(self, appInfos: Mapping[str, AppInfo]):
         """Initializes qiwis system and loads the apps.
