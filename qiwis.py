@@ -31,7 +31,7 @@ from typing import (
 )
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
-from PyQt5.QtGui import QIcon, QPainter, QPaintEvent, QPixmap, QCloseEvent
+from PyQt5.QtGui import QColor, QIcon, QPainter, QPaintEvent, QPixmap, QCloseEvent
 from PyQt5.QtWidgets import (
     QApplication, QDockWidget, QMainWindow, QMdiArea, QMdiSubWindow, QMessageBox, QWidget
 )
@@ -148,25 +148,31 @@ class MdiArea(QMdiArea):
         background: The QPixmap instance of the background image.
     """
 
-    def __init__(self, background_path: Optional[str] = None):
+    def __init__(self, background_path: Optional[str], background_color: Optional[str]):
         """Extended.
         
         Args:
             background_path: The path of the background image.
         """
         super().__init__()
-        self.background = QPixmap(background_path)
+        self.background_path = background_path
+        self.background_color = background_color
+        self.image = QPixmap(background_path)
+        self.color = QColor(background_color)
 
-    def paintEvent(self, event: QPaintEvent):
+    def paintEvent(self, _event: QPaintEvent):
         """Extended.
         
         Draws the background image.
         """
-        QMdiArea.paintEvent(self, event)
         painter = QPainter(self.viewport())
-        x = (self.width() - self.background.width()) // 2
-        y = (self.height() - self.background.height()) // 2
-        painter.drawPixmap(x, y, self.background)
+        if self.background_color is not None:
+            painter.fillRect(self.rect(), QColor(self.background_color))
+        if self.background_path is not None:
+            image = QPixmap(self.background_path)
+            x = (self.width() - image.width()) // 2
+            y = (self.height() - image.height()) // 2
+            painter.drawPixmap(x, y, image)
 
 
 class MdiSubWindow(QMdiSubWindow):
@@ -213,12 +219,12 @@ class Qiwis(QObject):
         """
         super().__init__(parent=parent)
         self.appInfos: Dict[str, AppInfo] = {}
-        icon_path, background_path = map(
+        icon_path, background_path, background_color = map(
             lambda attr: getattr(constants, attr, None),
-            ("icon_path", "background_path")
+            ("icon_path", "background_path", "background_color")
         )
         self.mainWindow = QMainWindow()
-        self.centralWidget = MdiArea(background_path)
+        self.centralWidget = MdiArea(background_path, background_color)
         self.centralWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.centralWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.mainWindow.setCentralWidget(self.centralWidget)
