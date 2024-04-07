@@ -165,7 +165,7 @@ class MdiArea(QMdiArea):
         """
         painter = QPainter(self.viewport())
         if self.background_color is not None:
-            painter.fillRect(self.rect(), QColor(self.background_color))
+            painter.fillRect(self.rect(), QColor(int(self.background_color, 16)))
         if self.background_path is not None:
             image = QPixmap(self.background_path)
             x = (self.width() - image.width()) // 2
