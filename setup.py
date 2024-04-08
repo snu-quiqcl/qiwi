@@ -4,7 +4,7 @@ Set-up file for releasing this package.
 
 from setuptools import setup
 
-with open("requirements.txt") as f:
+with open("requirements.txt", encoding="utf-8") as f:
     required = f.read().splitlines()
 
 
