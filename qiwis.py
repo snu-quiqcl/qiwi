@@ -148,15 +148,15 @@ class MdiArea(QMdiArea):
         background_path, background_color: See the predefined constants in _read_config_file().
     """
 
-    def __init__(self, background_path: Optional[str], background_color: Optional[str]):
+    def __init__(self, backgroundImage: Optional[QPixmap], backgroundColor: QColor):
         """Extended.
         
         Args:
             See the attributes section.
         """
         super().__init__()
-        self.background_path = background_path
-        self.background_color = background_color
+        self.backgroundImage = backgroundImage
+        self.backgroundColor = backgroundColor
 
     def paintEvent(self, _event: QPaintEvent):
         """Overridden.
@@ -164,13 +164,11 @@ class MdiArea(QMdiArea):
         Paints its background.
         """
         painter = QPainter(self.viewport())
-        if self.background_color is not None:
-            painter.fillRect(self.rect(), QColor(int(self.background_color, 16)))
-        if self.background_path is not None:
-            image = QPixmap(self.background_path)
-            x = (self.width() - image.width()) // 2
-            y = (self.height() - image.height()) // 2
-            painter.drawPixmap(x, y, image)
+        painter.fillRect(self.rect(), self.backgroundColor)
+        if self.backgroundImage is not None:
+            x = (self.width() - self.backgroundImage.width()) // 2
+            y = (self.height() - self.backgroundImage.height()) // 2
+            painter.drawPixmap(x, y, self.backgroundImage)
 
 
 class MdiSubWindow(QMdiSubWindow):
@@ -218,34 +216,27 @@ class Qiwis(QObject):
         super().__init__(parent=parent)
         self.appInfos: Dict[str, AppInfo] = {}
         icon_path, background_path, background_color = map(
-            lambda attr: getattr(constants, attr, None),
-            ("icon_path", "background_path", "background_color")
+            lambda name, default: getattr(constants, name, default),
+            (("icon_path", ""), ("background_path", ""), ("background_color", "ffffff"))
         )
         self.mainWindow = QMainWindow()
-        self.centralWidget = MdiArea(background_path, background_color)
+        backgroundImage = QPixmap(background_path) if background_path else None
+        backgroundColor = QColor(int(background_color, 16))
+        self.centralWidget = MdiArea(backgroundImage, backgroundColor)
         self.centralWidget.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.centralWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.mainWindow.setCentralWidget(self.centralWidget)
+        if icon_path:
+            self.mainWindow.setWindowIcon(QIcon(icon_path))
         self._wrapperWidgets = defaultdict(list)
         self._apps: Dict[str, BaseApp] = {}
         self._subscribers: DefaultDict[str, Set[str]] = defaultdict(set)
         appInfos = appInfos if appInfos else {}
-        if icon_path is not None:
-            self.setIcon(icon_path)
         self.load(appInfos)
         if isMaximized:
             self.mainWindow.showMaximized()
         else:
             self.mainWindow.show()
-
-    def setIcon(self, icon_path: str):
-        """Sets the icon image.
-
-        Args:
-            See the predefined constants in _read_config_file().
-        """
-        icon = QIcon(icon_path)
-        self.mainWindow.setWindowIcon(icon)
 
     def load(self, appInfos: Mapping[str, AppInfo]):
         """Initializes qiwis system and loads the apps.
