@@ -145,7 +145,8 @@ class MdiArea(QMdiArea):
     """QMdiArea for the central widget.
     
     Attributes:
-        background_path, background_color: See the predefined constants in _read_config_file().
+        backgroundImage: QPixmap object for background image.
+        backgroundColor: QColor object for background color.
     """
 
     def __init__(self, backgroundImage: Optional[QPixmap], backgroundColor: QColor):
