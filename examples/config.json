@@ -34,6 +34,7 @@
     },
     "constant": {
         "icon_path": "resources/icon.jpg",
-        "background_path": "resources/background.jpg"
+        "background_path": "resources/background.png",
+        "background_color": "9fbc9f"
     }
 }
