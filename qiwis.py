@@ -216,8 +216,8 @@ class Qiwis(QObject):
         """
         super().__init__(parent=parent)
         self.appInfos: Dict[str, AppInfo] = {}
-        icon_path, background_path, background_color = map(
-            lambda name, default: getattr(constants, name, default),
+        icon_path, background_path, background_color = (
+            getattr(constants, name, default) for name, default in
             (("icon_path", ""), ("background_path", ""), ("background_color", "ffffff"))
         )
         self.mainWindow = QMainWindow()
